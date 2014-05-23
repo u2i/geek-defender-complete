@@ -35,6 +35,7 @@ Preload.prototype = {
     this.load.image('cloud', 'assets/cloud.png');
     this.load.image('geeks', 'assets/geeks.png');
     this.load.image('portal', 'assets/portal.png');
+    this.load.image('crosshair', 'assets/crosshair.png');
 
     this.load.spritesheet('ninja', 'assets/ninja.png', 113, 50);
 
@@ -121,6 +122,12 @@ Play.prototype = {
 
     // Spawning a ninja
     this.game.time.events.add(2000, this.spawnNinja, this);
+
+    this.crosshairTexture = this.game.add.renderTexture(this.game.width, this.game.height, 'crosshairtex');
+    this.crosshair = this.game.make.sprite(0, 0, 'crosshair');
+    this.crosshair.anchor.set(0.5);
+    this.game.add.sprite(0, 0, this.crosshairTexture);
+
   },
 
   setUpStage: function() {
@@ -147,6 +154,9 @@ Play.prototype = {
     }
     if(this.reloading) {
       this.reloadBar.crop(new Phaser.Rectangle(0,0,120/1000*this.reloadTimer.duration,20));
+    }
+    if (!this.game.input.activePointer.position.isZero()) {
+      this.crosshairTexture.render(this.crosshair, this.game.input.activePointer.position, true);
     }
   },
 
@@ -225,8 +235,8 @@ Play.prototype = {
       this.reloadTimer.start();
       this.reloading = true;
       this.game.time.events.add(2000, this.finishReloading, this);
-      this.reloadingText = this.game.add.text(602,
-        75,
+      this.reloadingText = this.game.add.text(this.game.width - 200,
+        50,
         "RELOADING",
         { font: "15px Arial", fill: "#ff0044", align: "center" }
       );
