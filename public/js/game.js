@@ -123,11 +123,12 @@ Play.prototype = {
     // Spawning a ninja
     this.game.time.events.add(2000, this.spawnNinja, this);
 
-    this.crosshairTexture = this.game.add.renderTexture(this.game.width, this.game.height, 'crosshairtex');
-    this.crosshair = this.game.make.sprite(0, 0, 'crosshair');
+    this.crosshair = this.game.add.sprite(0, 0, 'crosshair');
     this.crosshair.anchor.set(0.5);
-    this.game.add.sprite(0, 0, this.crosshairTexture);
 
+    this.missileSpawnPoint = new Phaser.Point();
+    this.missileSpawnPoint.x = this.game.width - 125 + 20;
+    this.missileSpawnPoint.y = this.game.height - 260 + 20;
   },
 
   setUpStage: function() {
@@ -154,9 +155,11 @@ Play.prototype = {
     }
     if(this.reloading) {
       this.reloadBar.crop(new Phaser.Rectangle(0,0,120/1000*this.reloadTimer.duration,20));
-    }
-    if (!this.game.input.activePointer.position.isZero()) {
-      this.crosshairTexture.render(this.crosshair, this.game.input.activePointer.position, true);
+    } else {
+      if (!this.game.input.activePointer.position.isZero()) {
+        this.crosshair.x = this.game.input.activePointer.position.x;
+        this.crosshair.y = this.game.input.activePointer.position.y;
+      }
     }
   },
 
@@ -206,22 +209,21 @@ Play.prototype = {
       this.tensionFX.stop();
       this.releaseFX.play();
 
-      var spawnX = this.game.width+50;
-      var spawnY = this.game.height - 300
-      var yarn = this.game.add.sprite(spawnX, spawnY, 'yarn');
+      var yarn = this.game.add.sprite(this.missileSpawnPoint.x, this.missileSpawnPoint.y, 'yarn');
       this.game.physics.p2.enable(yarn);
       yarn.body.rotateLeft(Math.random() * 300);
       yarn.body.setCircle(20, -14, 1);
+      yarn.anchor.set(0.3, 0.5);
       yarn.body.collideWorldBounds = false;
       yarn.body.setCollisionGroup(this.yarnCollisionGroup);
       yarn.body.collides([this.groundCollisionGroup]);
       yarn.body.collides([this.ninjaCollisionGroup], this.ninjaYarnHit, this);
       var speedVectorLength = Math.sqrt(
-        Math.pow(spawnX - this.game.input.x,2) +
-        Math.pow(spawnY - this.game.input.y,2)
+        Math.pow(this.missileSpawnPoint.x - this.game.input.x,2) +
+        Math.pow(this.missileSpawnPoint.y - this.game.input.y,2)
       );
-      var nomralizedXspeed = (spawnX - this.game.input.x)/speedVectorLength;
-      var nomralizedYspeed = (spawnY - this.game.input.y)/speedVectorLength;
+      var nomralizedXspeed = (this.missileSpawnPoint.x - this.game.input.x)/speedVectorLength;
+      var nomralizedYspeed = (this.missileSpawnPoint.y - this.game.input.y)/speedVectorLength;
       yarn.body.velocity.x = -1 *
         Math.min(500,this.game.input.activePointer.duration/3) *
         nomralizedXspeed;
