@@ -20,11 +20,14 @@ function Preload() {
 
 Preload.prototype = {
   preload: function() {
-    this.asset = this.add.sprite(this.width/2,this.height/2, 'preloader');
-    this.asset.anchor.setTo(0.5, 0.5);
+    this.game.stage.backgroundColor = '9ebcff';
+    this.loadingText = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Loading...', {
+      fill: '#fff',
+      align: 'center'
+    });
+    this.loadingText.anchor.setTo(0.5, 0.5);
 
     this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
-    this.load.setPreloadSprite(this.asset);
     this.load.image('yarn', 'assets/yarn.png');
     this.load.image('ground', 'assets/ground.png');
     this.load.image('castel', 'assets/castel.png');
@@ -44,7 +47,6 @@ Preload.prototype = {
   },
   create: function() {
     this.game.input.maxPointers = 1;
-    this.asset.cropEnabled = false;
   },
   update: function() {
     if(!!this.ready) {
@@ -53,6 +55,7 @@ Preload.prototype = {
   },
   onLoadComplete: function() {
     this.ready = true;
+    this.loadingText.destroy();
   }
 };
 
